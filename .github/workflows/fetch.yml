@@ -14,42 +14,44 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch TikTok Creative Center trends
+      - name: Fetch TikTok discover page
         run: |
           mkdir -p data
-          curl -sS --max-time 60 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
-            -H "Referer: https://ads.tiktok.com/creativecenter/" \
-            "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=30&period=7&country_code=US&order_by=popular" \
-            -o data/raw.json
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+          for url in "https://www.tiktok.com/discover" "https://www.tiktok.com/discover?lang=en"; do
+            code=$(curl -sSL --max-time 60 -A "$UA" -H "Accept-Language: en-US,en;q=0.9" -o data/discover.html -w '%{http_code}' "$url" || true)
+            echo "GET $url -> $code $(wc -c < data/discover.html) bytes"
+            if [ "$code" = "200" ] && [ -s data/discover.html ]; then break; fi
+          done
           python3 - <<'PY'
-          import json, datetime
-          raw = json.load(open('data/raw.json', encoding='utf-8'))
-          data = raw.get('data') or {}
-          items = data.get('list') if isinstance(data, dict) else data
-          if not isinstance(items, list):
-              items = []
-          out = []
-          for it in items:
-              if not isinstance(it, dict):
+          import json, re, datetime
+          html = open('data/discover.html', encoding='utf-8', errors='ignore').read()
+          tags = []
+          seen = set()
+          for m in re.finditer(r'href="/tag/([A-Za-z0-9_%\.\-]+)"[^>]*>', html):
+              name = m.group(1).strip()
+              if not name or name in seen:
                   continue
-              name = it.get('hashtag_name') or it.get('hashtag') or it.get('name')
-              if not name:
-                  continue
-              out.append({
-                  'title': str(name).lstrip('#'),
-                  'hot': int(it.get('publish_cnt') or it.get('publishCnt') or 0),
-              })
+              seen.add(name)
+              tags.append({'title': name, 'hot': 0})
+          if not tags:
+              for m in re.finditer(r'#([A-Za-z0-9_]{3,30})', html):
+                  name = m.group(1)
+                  if name in seen:
+                      continue
+                  seen.add(name)
+                  tags.append({'title': name, 'hot': 0})
           json.dump({
               'updated_at': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
-              'source': 'ads.tiktok.com creative_radar_api',
-              'items': out,
+              'source': 'www.tiktok.com/discover',
+              'items': tags[:40],
           }, open('data/tiktok.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-          print('items', len(out))
+          print('items', len(tags[:40]))
           PY
+          rm -f data/discover.html
 
       - name: Commit
         run: |
-          rm -f data/raw.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/tiktok.json
