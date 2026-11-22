@@ -3,26 +3,22 @@ name: debug-tiktok
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Fetch pages
+      - name: Probe aggregators
         run: |
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-          mkdir -p data
-          curl -sSL --max-time 60 -A "$UA" -H "Accept-Language: en-US,en;q=0.9" -o data/discover.html "https://www.tiktok.com/discover" || true
-          curl -sSL --max-time 60 -A "$UA" -H "Accept-Language: en-US,en;q=0.9" -o data/home.html "https://www.tiktok.com/" || true
-          ls -lh data/
-          grep -o 'challenge[^,]\{0,80\}' data/discover.html | head -5 || true
-      - name: Commit debug
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/
-          git diff --cached --quiet || git commit -m "debug: tiktok pages $(date -u +%FT%TZ)"
-          git push
+          probe() {
+            echo "=== $1 ==="
+            code=$(curl -sSL --max-time 40 -A "$UA" -H "Accept-Language: en-US,en;q=0.9" -o /tmp/b.txt -w '%{http_code}' "$1" || true)
+            echo "status=$code size=$(wc -c < /tmp/b.txt)"
+            head -c 300 /tmp/b.txt | tr '\n' ' '; echo
+          }
+          probe "https://tokchart.com/tiktok-trending-hashtags"
+          probe "https://www.tokchart.com/tiktok-trending-hashtags"
+          probe "https://exolyt.com/"
+          probe "https://trendtok.io/"
+          probe "https://rsshub.app/tiktok/trending"
+          probe "https://rsshub.app/tiktok/user/@tiktok"
