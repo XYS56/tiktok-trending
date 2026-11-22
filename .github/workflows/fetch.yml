@@ -229,6 +229,55 @@ jobs:
           JS
           node fetch-gtrends.js
 
+      - name: Debug page structures
+        run: |
+          cat > debug.js <<'JS'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1280, height: 1200 } });
+
+            const probe = async (url) => {
+              try {
+                await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                await page.waitForTimeout(7000);
+                const info = await page.evaluate(() => {
+                  const q = (s) => document.querySelectorAll(s).length;
+                  const sample = (s) => {
+                    const el = document.querySelector(s);
+                    return el ? (el.innerText || '').replace(/\s+/g, ' ').slice(0, 120) : '';
+                  };
+                  return {
+                    title: document.title,
+                    url: location.href,
+                    bodyLen: document.body ? document.body.innerText.length : 0,
+                    videoTitle: q('a#video-title'),
+                    videoRenderer: q('ytd-video-renderer'),
+                    richItem: q('ytd-rich-item-renderer'),
+                    compact: q('ytd-compact-video-renderer'),
+                    richGrid: q('ytd-rich-grid-renderer'),
+                    trendLi: q('.trend-card__list li'),
+                    trendA: q('.trend-card__list li a'),
+                    trendAny: q('[class*=trend] a'),
+                    sampleVideo: sample('a#video-title'),
+                    sampleTitle: sample('h3'),
+                    sampleTrend: sample('.trend-card__list li'),
+                    bodyHead: (document.body ? document.body.innerText : '').replace(/\s+/g, ' ').slice(0, 300)
+                  };
+                });
+                console.log('PROBE', url, JSON.stringify(info));
+              } catch (e) {
+                console.log('PROBE FAIL', url, e.message);
+              }
+            };
+
+            await probe('https://www.youtube.com/feed/trending?gl=US&hl=en&persist_gl=1');
+            await probe('https://trends24.in/');
+            await browser.close();
+          })();
+          JS
+          node debug.js
+
       - name: Commit and push
         run: |
           git config user.name "hotboard-relay-bot"
