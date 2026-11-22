@@ -1,0 +1,57 @@
+name: fetch-tiktok
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch TikTok Creative Center trends
+        run: |
+          mkdir -p data
+          curl -sS --max-time 60 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
+            -H "Referer: https://ads.tiktok.com/creativecenter/" \
+            "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=30&period=7&country_code=US&order_by=popular" \
+            -o data/raw.json
+          python3 - <<'PY'
+          import json, datetime
+          raw = json.load(open('data/raw.json', encoding='utf-8'))
+          data = raw.get('data') or {}
+          items = data.get('list') if isinstance(data, dict) else data
+          if not isinstance(items, list):
+              items = []
+          out = []
+          for it in items:
+              if not isinstance(it, dict):
+                  continue
+              name = it.get('hashtag_name') or it.get('hashtag') or it.get('name')
+              if not name:
+                  continue
+              out.append({
+                  'title': str(name).lstrip('#'),
+                  'hot': int(it.get('publish_cnt') or it.get('publishCnt') or 0),
+              })
+          json.dump({
+              'updated_at': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'source': 'ads.tiktok.com creative_radar_api',
+              'items': out,
+          }, open('data/tiktok.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+          print('items', len(out))
+          PY
+
+      - name: Commit
+        run: |
+          rm -f data/raw.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/tiktok.json
+          git diff --cached --quiet || git commit -m "data: update $(date -u +%FT%TZ)"
+          git push
