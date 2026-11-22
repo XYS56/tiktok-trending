@@ -1,0 +1,23 @@
+name: debug-tiktok
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe
+        run: |
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+          probe() {
+            echo "=== $1 ==="
+            curl -sS --max-time 40 -A "$UA" -H "Accept: application/json" -H "Referer: https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en" -D /tmp/h.txt "$1" -o /tmp/b.txt || true
+            head -1 /tmp/h.txt
+            head -c 400 /tmp/b.txt; echo
+          }
+          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&country_code=US&order_by=popular"
+          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=120&country_code=US&order_by=popular"
+          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&country_code=GB&order_by=popular"
+          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&region=US&order_by=popular"
+          probe "https://www.tiktok.com/api/trending/hashtag/?region=US&count=20"
