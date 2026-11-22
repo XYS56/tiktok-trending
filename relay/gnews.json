@@ -32,15 +32,15 @@
     },
     {
       "key": "country_ir",
-      "url": "https://news.google.com/rss/search?q=when%3A1d&hl=fa&gl=IR&ceid=IR%3Afa"
+      "url": "https://news.google.com/rss/search?q=Iran%20when%3A2d&hl=fa&gl=IR&ceid=IR%3Afa"
     },
     {
       "key": "country_au",
-      "url": "https://news.google.com/rss/search?q=when%3A1d&hl=en-AU&gl=AU&ceid=AU%3Aen"
+      "url": "https://news.google.com/rss/search?q=Australia%20when%3A2d&hl=en-AU&gl=AU&ceid=AU%3Aen"
     },
     {
       "key": "country_ca",
-      "url": "https://news.google.com/rss/search?q=when%3A1d&hl=en-CA&gl=CA&ceid=CA%3Aen"
+      "url": "https://news.google.com/rss/search?q=Canada%20when%3A2d&hl=en-CA&gl=CA&ceid=CA%3Aen"
     },
     {
       "key": "country_eu",
