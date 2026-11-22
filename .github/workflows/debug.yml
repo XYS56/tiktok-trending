@@ -3,21 +3,26 @@ name: debug-tiktok
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe
+      - uses: actions/checkout@v4
+      - name: Fetch pages
         run: |
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-          probe() {
-            echo "=== $1 ==="
-            curl -sS --max-time 40 -A "$UA" -H "Accept: application/json" -H "Referer: https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en" -D /tmp/h.txt "$1" -o /tmp/b.txt || true
-            head -1 /tmp/h.txt
-            head -c 400 /tmp/b.txt; echo
-          }
-          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&country_code=US&order_by=popular"
-          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=120&country_code=US&order_by=popular"
-          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&country_code=GB&order_by=popular"
-          probe "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&region=US&order_by=popular"
-          probe "https://www.tiktok.com/api/trending/hashtag/?region=US&count=20"
+          mkdir -p data
+          curl -sSL --max-time 60 -A "$UA" -H "Accept-Language: en-US,en;q=0.9" -o data/discover.html "https://www.tiktok.com/discover" || true
+          curl -sSL --max-time 60 -A "$UA" -H "Accept-Language: en-US,en;q=0.9" -o data/home.html "https://www.tiktok.com/" || true
+          ls -lh data/
+          grep -o 'challenge[^,]\{0,80\}' data/discover.html | head -5 || true
+      - name: Commit debug
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "debug: tiktok pages $(date -u +%FT%TZ)"
+          git push
