@@ -1,6 +1,6 @@
 {
   "US": {
-    "updated_at": "2026-11-22T13:41:03.497Z",
+    "updated_at": "2026-11-22T13:42:56.329Z",
     "count": 10,
     "items": [
       {
@@ -66,7 +66,7 @@
     ]
   },
   "GB": {
-    "updated_at": "2026-11-22T13:41:03.725Z",
+    "updated_at": "2026-11-22T13:42:56.400Z",
     "count": 10,
     "items": [
       {
@@ -132,13 +132,55 @@
     ]
   },
   "DE": {
-    "updated_at": "2026-11-22T13:41:03.927Z",
+    "updated_at": "2026-11-22T13:42:56.574Z",
     "count": 10,
     "items": [
+      {
+        "title": "dazn",
+        "url": "https://www.spox.com/fussball/news/laeuft-fc-liverpool-vs-manchester-united-heute-live-bei-sky-oder-dazn-dieser-sender-zeigt-uebertraegt-fussball-in-der-premier-league/bltce9ced34a6b6a810",
+        "hot": "1000+",
+        "desc": "Google Trends DE"
+      },
+      {
+        "title": "23 november",
+        "url": "https://www.noz.de/lokales/meppen/artikel/wo-im-emsland-in-der-woche-ab-23-november-geblitzt-wird-48234554",
+        "hot": "500+",
+        "desc": "Google Trends DE"
+      },
+      {
+        "title": "hc erlangen",
+        "url": "https://sportbild.bild.de/sportmix/handball/handball-schon-wieder-bundesligist-bangt-um-island-star-6b02c8775842ff528b9e3aee",
+        "hot": "200+",
+        "desc": "Google Trends DE"
+      },
+      {
+        "title": "barca spiel",
+        "url": "https://www.dazn.com/de-DE/news/fussball/laliga-heute-live-im-tv-und-live-stream-fc-barcelona-gegen-villarreal/u0r5olnfo7sk1is2ir9jskp0o",
+        "hot": "200+",
+        "desc": "Google Trends DE"
+      },
+      {
+        "title": "barca vs",
+        "url": "https://www.bbc.com/sport/football/live/cqe87553peegt",
+        "hot": "2000+",
+        "desc": "Google Trends DE"
+      },
+      {
+        "title": "hull vs brighton",
+        "url": "https://www.bbc.com/sport/football/live/cky97ll8253wt",
+        "hot": "200+",
+        "desc": "Google Trends DE"
+      },
       {
         "title": "stadion",
         "url": "https://www.hessenschau.de/sport/fussball/eintracht-frankfurt/news-zu-eintracht-frankfurt--hellmann-wirbt-fuer-stadion-neubau-,bundesliga-ticker-104.html",
         "hot": "200+",
+        "desc": "Google Trends DE"
+      },
+      {
+        "title": "friedrich christian flick",
+        "url": "https://www.sueddeutsche.de/kultur/mick-flick-kunstsammler-gestorben-nachruf-li.3584124",
+        "hot": "20000+",
         "desc": "Google Trends DE"
       },
       {
@@ -148,57 +190,15 @@
         "desc": "Google Trends DE"
       },
       {
-        "title": "barselona - villarreal",
-        "url": "https://www.dazn.com/de-DE/news/fussball/laliga-heute-live-im-tv-und-live-stream-fc-barcelona-gegen-villarreal/u0r5olnfo7sk1is2ir9jskp0o",
-        "hot": "200+",
-        "desc": "Google Trends DE"
-      },
-      {
         "title": "gks katowice – lech poznań",
         "url": "https://sportowefakty.wp.pl/bukmacherzy/1284914/gks-katowice-lech-poznan-transmisja-na-zywo-gdzie-ogladac-w-tv-i-online-22112026",
-        "hot": "200+",
-        "desc": "Google Trends DE"
-      },
-      {
-        "title": "gaia sabbatini",
-        "url": "https://www.virgilio.it/video/gaia-sabbatini-correre-sola-consigli-235471",
-        "hot": "200+",
-        "desc": "Google Trends DE"
-      },
-      {
-        "title": "tagesschau24",
-        "url": "https://www.dwdl.de/nachrichten/108655/tagesschau24_verabschiedet_sich_noch_vor_weihnachten_/",
-        "hot": "200+",
-        "desc": "Google Trends DE"
-      },
-      {
-        "title": "tobias raschl",
-        "url": "https://www.kicker.de/neuzugaenge-ezeh-und-raschl-fehlen-dresden-in-den-kommenden-wochen-1272187/artikel",
-        "hot": "200+",
-        "desc": "Google Trends DE"
-      },
-      {
-        "title": "paderborner-bürger- schützenverein",
-        "url": "https://www.nw.de/lokal/kreis_paderborn/paderborn/24468557_Paderborner-Buerger-Schuetzenverein-trauert-um-grosse-Persoenlichkeit.html",
-        "hot": "500+",
-        "desc": "Google Trends DE"
-      },
-      {
-        "title": "eric stehfest",
-        "url": "https://www.bild.de/unterhaltung/stars-und-leute/eric-stehfest-gzsz-star-wird-nach-ehe-aus-wieder-vater-6b02d86825b618a0b5d5bc9c",
-        "hot": "500+",
-        "desc": "Google Trends DE"
-      },
-      {
-        "title": "neuss",
-        "url": "https://rp-online.de/nrw/staedte/neuss/unfall-in-neuss-70-jaehriger-autofahrer-kollidiert-mit-strassenbahn_aid-158782979",
         "hot": "200+",
         "desc": "Google Trends DE"
       }
     ]
   },
   "FR": {
-    "updated_at": "2026-11-22T13:41:04.165Z",
+    "updated_at": "2026-11-22T13:42:56.703Z",
     "count": 10,
     "items": [
       {
@@ -264,7 +264,7 @@
     ]
   },
   "IN": {
-    "updated_at": "2026-11-22T13:41:04.388Z",
+    "updated_at": "2026-11-22T13:42:56.772Z",
     "count": 10,
     "items": [
       {
@@ -330,7 +330,7 @@
     ]
   },
   "BR": {
-    "updated_at": "2026-11-22T13:41:04.636Z",
+    "updated_at": "2026-11-22T13:42:56.842Z",
     "count": 10,
     "items": [
       {
@@ -383,7 +383,7 @@
       },
       {
         "title": "kaiserslautern dynamo dresden 22/11/2026",
-        "url": "https://www.sport1.de/news/fussball/2-bundesliga/2026/11/2-bundesliga-heute-lautern-dresden-live-im-tv-liveticker-livestream-2",
+        "url": "https://www.kicker.de/klautern-gegen-dresden-2026-bundesliga-5227217/ticker",
         "hot": "200+",
         "desc": "Google Trends BR"
       },
@@ -396,7 +396,7 @@
     ]
   },
   "JP": {
-    "updated_at": "2026-11-22T13:41:04.875Z",
+    "updated_at": "2026-11-22T13:42:56.910Z",
     "count": 10,
     "items": [
       {
@@ -462,7 +462,7 @@
     ]
   },
   "KR": {
-    "updated_at": "2026-11-22T13:41:05.053Z",
+    "updated_at": "2026-11-22T13:42:56.965Z",
     "count": 10,
     "items": [
       {
