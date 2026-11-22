@@ -1,4 +1,4 @@
-name: fetch-tiktok
+name: fetch-trending
 
 on:
   schedule:
@@ -24,9 +24,9 @@ jobs:
           npm i playwright@1.49.1 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null 2>&1
 
-      - name: Fetch trending hashtags from Tokchart
+      - name: Fetch TikTok hashtags (Tokchart)
         run: |
-          cat > fetch.js <<'JS'
+          cat > fetch-tiktok.js <<'JS'
           const { chromium } = require('playwright');
           const fs = require('fs');
 
@@ -57,7 +57,7 @@ jobs:
                   title: name,
                   url: 'https://www.tiktok.com/tag/' + encodeTag(name),
                   hot: m ? Math.round(parseFloat(m[1])) : 0,
-                  desc: 'TikTok 本周热门话题' + (growth ? ' · 周环比 ' + growth : ''),
+                  desc: 'TikTok 本周热门话题' + (growth ? ' · 周环比 ' + growth : '')
                 });
               }
             };
@@ -65,26 +65,174 @@ jobs:
             try {
               await grab('https://tokchart.com/tiktok-trending-hashtags');
             } catch (e) {
-              console.log('grab failed:', e.message);
+              console.log('tokchart failed:', e.message);
             }
-
             await browser.close();
-            fs.mkdirSync('data', { recursive: true });
+
             fs.writeFileSync('data/tiktok.json', JSON.stringify({
               updated_at: new Date().toISOString(),
-              source: 'tokchart.com/tiktok-trending-hashtags',
+              source: 'tokchart.com',
               count: items.length,
-              items: items.slice(0, 30),
-            }, null, 1), 'utf8');
-            console.log('items', items.length);
+              items
+            }, null, 2) + '\n');
+            console.log('tiktok items:', items.length);
           })();
           JS
-          node fetch.js
+          node fetch-tiktok.js
 
-      - name: Commit
+      - name: Fetch YouTube trending (US)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/tiktok.json
-          git diff --cached --quiet || git commit -m "data: update $(date -u +%FT%TZ)"
+          cat > fetch-youtube.js <<'JS'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1280, height: 1200 } });
+            const items = [];
+            const seen = new Set();
+            try {
+              await page.goto('https://www.youtube.com/feed/trending?gl=US&hl=en', { waitUntil: 'domcontentloaded', timeout: 60000 });
+              await page.waitForTimeout(8000);
+              const rows = await page.$$eval('ytd-video-renderer, ytd-compact-video-renderer', els => els.map(el => {
+                const a = el.querySelector('a#video-title, a#video-title-link, a.yt-simple-endpoint');
+                const meta = el.querySelector('#metadata-line, .ytd-video-meta-block');
+                return {
+                  title: ((a && a.innerText) || '').replace(/\s+/g, ' ').trim(),
+                  href: a ? a.getAttribute('href') : '',
+                  meta: (meta ? meta.innerText : '').replace(/\s+/g, ' ').trim()
+                };
+              }));
+              for (const r of rows) {
+                if (!r.title || r.title.length < 4 || seen.has(r.title)) continue;
+                if (!r.href || r.href.indexOf('/watch') === -1) continue;
+                seen.add(r.title);
+                const views = /([\d.]+[KMB]?) views/.exec(r.meta);
+                items.push({
+                  title: r.title,
+                  url: 'https://www.youtube.com' + r.href.split('&')[0],
+                  hot: views ? views[1] : '',
+                  desc: [r.meta, 'YouTube 美国趋势'].filter(Boolean).join(' · ')
+                });
+                if (items.length >= 30) break;
+              }
+            } catch (e) {
+              console.log('youtube failed:', e.message);
+            }
+            await browser.close();
+            fs.writeFileSync('data/youtube.json', JSON.stringify({
+              updated_at: new Date().toISOString(),
+              source: 'youtube.com/feed/trending',
+              count: items.length,
+              items
+            }, null, 2) + '\n');
+            console.log('youtube items:', items.length);
+          })();
+          JS
+          node fetch-youtube.js
+
+      - name: Fetch X / Twitter trends (Trends24)
+        run: |
+          cat > fetch-x.js <<'JS'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1280, height: 1400 } });
+            const items = [];
+            const seen = new Set();
+            try {
+              await page.goto('https://trends24.in/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+              await page.waitForTimeout(7000);
+              const rows = await page.$$eval('.trend-card__list li, .trend-card__list li a', els => els.map(el => {
+                const a = el.tagName === 'A' ? el : el.querySelector('a');
+                const cnt = el.querySelector ? el.querySelector('.trend-card__list-item-count') : null;
+                return {
+                  text: ((a && a.innerText) || '').replace(/\s+/g, ' ').trim(),
+                  href: a ? a.getAttribute('href') : '',
+                  count: cnt ? cnt.innerText.trim() : ''
+                };
+              }));
+              for (const r of rows) {
+                const name = r.text.replace(/^#/, '').trim();
+                if (!name || seen.has(name)) continue;
+                seen.add(name);
+                items.push({
+                  title: name,
+                  url: r.href || ('https://x.com/search?q=' + encodeURIComponent(name)),
+                  hot: r.count,
+                  desc: ['X 全球趋势', r.count].filter(Boolean).join(' · ')
+                });
+                if (items.length >= 40) break;
+              }
+            } catch (e) {
+              console.log('x failed:', e.message);
+            }
+            await browser.close();
+            fs.writeFileSync('data/x.json', JSON.stringify({
+              updated_at: new Date().toISOString(),
+              source: 'trends24.in',
+              count: items.length,
+              items
+            }, null, 2) + '\n');
+            console.log('x items:', items.length);
+          })();
+          JS
+          node fetch-x.js
+
+      - name: Fetch Google Trends RSS (8 regions)
+        run: |
+          cat > fetch-gtrends.js <<'JS'
+          const fs = require('fs');
+          const geos = ['US', 'GB', 'DE', 'FR', 'IN', 'BR', 'JP', 'KR'];
+
+          function decode(s) {
+            return String(s)
+              .replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1')
+              .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+              .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
+          }
+
+          (async () => {
+            const out = {};
+            for (const geo of geos) {
+              const items = [];
+              try {
+                const res = await fetch('https://trends.google.com/trending/rss?geo=' + geo, {
+                  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36' }
+                });
+                const xml = await res.text();
+                const blocks = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
+                for (const block of blocks) {
+                  const title = /<title>([\s\S]*?)<\/title>/.exec(block);
+                  const traffic = /<ht:approx_traffic>([\s\S]*?)<\/ht:approx_traffic>/.exec(block);
+                  const newsUrl = /<ht:news_item_url>([\s\S]*?)<\/ht:news_item_url>/.exec(block);
+                  const t = title ? decode(title[1]).trim() : '';
+                  if (!t) continue;
+                  items.push({
+                    title: t,
+                    url: newsUrl ? decode(newsUrl[1]).trim() : ('https://trends.google.com/trends/explore?q=' + encodeURIComponent(t) + '&geo=' + geo),
+                    hot: traffic ? decode(traffic[1]).trim() : '',
+                    desc: 'Google Trends ' + geo
+                  });
+                  if (items.length >= 20) break;
+                }
+              } catch (e) {
+                console.log('gtrends ' + geo + ' failed:', e.message);
+              }
+              out[geo] = { updated_at: new Date().toISOString(), count: items.length, items };
+              console.log('gtrends ' + geo + ':', items.length);
+            }
+            fs.writeFileSync('data/gtrends.json', JSON.stringify(out, null, 2) + '\n');
+          })();
+          JS
+          node fetch-gtrends.js
+
+      - name: Commit and push
+        run: |
+          git config user.name "hotboard-relay-bot"
+          git config user.email "relay@users.noreply.github.com"
+          git add data
+          git diff --staged --quiet || git commit -m "chore: update trending relay $(date -u +'%Y-%m-%dT%H:%MZ')"
           git push
