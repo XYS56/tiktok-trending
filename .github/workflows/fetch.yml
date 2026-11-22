@@ -209,32 +209,6 @@ jobs:
           JS
           node fetch-x.js
 
-      - name: Probe YouTube alternates
-        run: |
-          cat > probe2.js <<'JS'
-          const urls = [
-            'https://yt.lemnoslife.com/noKey/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=5',
-            'https://yt.lemnoslife.com/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=5',
-            'https://piped-instances.kavin.rocks/',
-            'https://inv.nadeko.net/api/v1/trending?region=US'
-          ];
-          (async () => {
-            for (const u of urls) {
-              try {
-                const c = new AbortController();
-                const t = setTimeout(() => c.abort(), 15000);
-                const r = await fetch(u, { signal: c.signal, headers: { 'User-Agent': 'Mozilla/5.0 Chrome/131' } });
-                clearTimeout(t);
-                const text = await r.text();
-                console.log('API2', u, r.status, text.length, text.slice(0, 200).replace(/\s+/g, ' '));
-              } catch (e) {
-                console.log('API2 FAIL', u, e.message);
-              }
-            }
-          })();
-          JS
-          node probe2.js
-
       - name: Commit and push
         run: |
           git config user.name "hotboard-relay-bot"
