@@ -277,6 +277,35 @@ jobs:
           })();
           JS
           node debug.js
+          cat > probe-apis.js <<'JS'
+          const urls = [
+            'https://yewtu.be/api/v1/trending?region=US',
+            'https://invidious.nerdvpn.de/api/v1/trending?region=US',
+            'https://inv.nadeko.net/api/v1/trending?region=US',
+            'https://invidious.f5.si/api/v1/trending?region=US',
+            'https://pipedapi.kavin.rocks/trending?region=US',
+            'https://api.piped.yt/trending?region=US',
+            'https://pipedapi.adminforge.de/trending?region=US',
+            'https://getdaytrends.com/',
+            'https://xcancel.com/',
+            'https://rsshub.app/twitter/trends/worldwide'
+          ];
+          (async () => {
+            for (const u of urls) {
+              try {
+                const c = new AbortController();
+                const t = setTimeout(() => c.abort(), 15000);
+                const r = await fetch(u, { signal: c.signal, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131 safari' } });
+                clearTimeout(t);
+                const text = await r.text();
+                console.log('API', u, r.status, text.length, text.slice(0, 160).replace(/\s+/g, ' '));
+              } catch (e) {
+                console.log('API FAIL', u, e.message);
+              }
+            }
+          })();
+          JS
+          node probe-apis.js
 
       - name: Commit and push
         run: |
