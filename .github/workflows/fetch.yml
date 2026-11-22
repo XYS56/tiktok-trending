@@ -80,49 +80,76 @@ jobs:
           JS
           node fetch-tiktok.js
 
-      - name: Fetch YouTube trending (US)
+      - name: Fetch YouTube trending (dynamic Invidious)
         run: |
           cat > fetch-youtube.js <<'JS'
-          const { chromium } = require('playwright');
           const fs = require('fs');
 
+          async function tryFetch(url, timeout = 12000) {
+            const c = new AbortController();
+            const t = setTimeout(() => c.abort(), timeout);
+            try {
+              const res = await fetch(url, {
+                signal: c.signal,
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36' }
+              });
+              const text = await res.text();
+              return { status: res.status, text };
+            } finally {
+              clearTimeout(t);
+            }
+          }
+
           (async () => {
-            const browser = await chromium.launch();
-            const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1280, height: 1200 } });
             const items = [];
             const seen = new Set();
+            const hosts = [];
+
             try {
-              await page.goto('https://www.youtube.com/feed/trending?gl=US&hl=en', { waitUntil: 'domcontentloaded', timeout: 60000 });
-              await page.waitForTimeout(8000);
-              const rows = await page.$$eval('ytd-video-renderer, ytd-compact-video-renderer', els => els.map(el => {
-                const a = el.querySelector('a#video-title, a#video-title-link, a.yt-simple-endpoint');
-                const meta = el.querySelector('#metadata-line, .ytd-video-meta-block');
-                return {
-                  title: ((a && a.innerText) || '').replace(/\s+/g, ' ').trim(),
-                  href: a ? a.getAttribute('href') : '',
-                  meta: (meta ? meta.innerText : '').replace(/\s+/g, ' ').trim()
-                };
-              }));
-              for (const r of rows) {
-                if (!r.title || r.title.length < 4 || seen.has(r.title)) continue;
-                if (!r.href || r.href.indexOf('/watch') === -1) continue;
-                seen.add(r.title);
-                const views = /([\d.]+[KMB]?) views/.exec(r.meta);
-                items.push({
-                  title: r.title,
-                  url: 'https://www.youtube.com' + r.href.split('&')[0],
-                  hot: views ? views[1] : '',
-                  desc: [r.meta, 'YouTube 美国趋势'].filter(Boolean).join(' · ')
-                });
-                if (items.length >= 30) break;
+              const r = await tryFetch('https://api.invidious.io/instances.json?sort_by=type,users', 15000);
+              if (r.status === 200) {
+                const arr = JSON.parse(r.text);
+                for (const row of arr) {
+                  const host = row[0];
+                  const info = row[1] || {};
+                  if (info.type === 'https' && info.api !== false) hosts.push(host);
+                }
               }
             } catch (e) {
-              console.log('youtube failed:', e.message);
+              console.log('instance list failed:', e.message);
             }
-            await browser.close();
+            if (!hosts.includes('yewtu.be')) hosts.unshift('yewtu.be');
+            console.log('candidate hosts:', hosts.slice(0, 8).join(','));
+
+            for (const host of hosts.slice(0, 8)) {
+              try {
+                const r = await tryFetch('https://' + host + '/api/v1/trending?region=US');
+                if (r.status !== 200 || !r.text.trim().startsWith('[')) continue;
+                const list = JSON.parse(r.text);
+                for (const v of list) {
+                  const title = (v.title || '').trim();
+                  if (!title || seen.has(title)) continue;
+                  seen.add(title);
+                  items.push({
+                    title,
+                    url: 'https://www.youtube.com/watch?v=' + v.videoId,
+                    hot: v.viewCount || '',
+                    desc: ['YouTube 美国趋势', v.author || '', v.viewCount ? v.viewCount + ' views' : ''].filter(Boolean).join(' · ')
+                  });
+                  if (items.length >= 30) break;
+                }
+                if (items.length) {
+                  console.log('youtube via ' + host + ':', items.length);
+                  break;
+                }
+              } catch (e) {
+                console.log('youtube host failed:', host, e.message);
+              }
+            }
+
             fs.writeFileSync('data/youtube.json', JSON.stringify({
               updated_at: new Date().toISOString(),
-              source: 'youtube.com/feed/trending',
+              source: 'invidious',
               count: items.length,
               items
             }, null, 2) + '\n');
@@ -131,48 +158,49 @@ jobs:
           JS
           node fetch-youtube.js
 
-      - name: Fetch X / Twitter trends (Trends24)
+      - name: Fetch X trends (getdaytrends)
         run: |
           cat > fetch-x.js <<'JS'
-          const { chromium } = require('playwright');
           const fs = require('fs');
 
+          function decode(s) {
+            return String(s)
+              .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+              .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#x27;/g, "'")
+              .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
+          }
+
           (async () => {
-            const browser = await chromium.launch();
-            const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1280, height: 1400 } });
             const items = [];
             const seen = new Set();
             try {
-              await page.goto('https://trends24.in/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-              await page.waitForTimeout(7000);
-              const rows = await page.$$eval('.trend-card__list li, .trend-card__list li a', els => els.map(el => {
-                const a = el.tagName === 'A' ? el : el.querySelector('a');
-                const cnt = el.querySelector ? el.querySelector('.trend-card__list-item-count') : null;
-                return {
-                  text: ((a && a.innerText) || '').replace(/\s+/g, ' ').trim(),
-                  href: a ? a.getAttribute('href') : '',
-                  count: cnt ? cnt.innerText.trim() : ''
-                };
-              }));
-              for (const r of rows) {
-                const name = r.text.replace(/^#/, '').trim();
-                if (!name || seen.has(name)) continue;
+              const res = await fetch('https://getdaytrends.com/', {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36' }
+              });
+              const html = await res.text();
+              console.log('getdaytrends status', res.status, 'len', html.length);
+              const re = /<a[^>]+href="\/trend\/([^"\/]+)\/?"[^>]*>([^<]{1,120})<\/a>/g;
+              let m;
+              while ((m = re.exec(html)) !== null) {
+                const slug = m[1];
+                const name = decode(m[2]).trim();
+                if (!name || name.length < 2 || seen.has(name)) continue;
                 seen.add(name);
                 items.push({
                   title: name,
-                  url: r.href || ('https://x.com/search?q=' + encodeURIComponent(name)),
-                  hot: r.count,
-                  desc: ['X 全球趋势', r.count].filter(Boolean).join(' · ')
+                  url: 'https://getdaytrends.com/trend/' + encodeURIComponent(slug) + '/',
+                  hot: '',
+                  desc: 'X 全球趋势 · getdaytrends'
                 });
                 if (items.length >= 40) break;
               }
             } catch (e) {
               console.log('x failed:', e.message);
             }
-            await browser.close();
+
             fs.writeFileSync('data/x.json', JSON.stringify({
               updated_at: new Date().toISOString(),
-              source: 'trends24.in',
+              source: 'getdaytrends.com',
               count: items.length,
               items
             }, null, 2) + '\n');
@@ -180,132 +208,6 @@ jobs:
           })();
           JS
           node fetch-x.js
-
-      - name: Fetch Google Trends RSS (8 regions)
-        run: |
-          cat > fetch-gtrends.js <<'JS'
-          const fs = require('fs');
-          const geos = ['US', 'GB', 'DE', 'FR', 'IN', 'BR', 'JP', 'KR'];
-
-          function decode(s) {
-            return String(s)
-              .replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1')
-              .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-              .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
-          }
-
-          (async () => {
-            const out = {};
-            for (const geo of geos) {
-              const items = [];
-              try {
-                const res = await fetch('https://trends.google.com/trending/rss?geo=' + geo, {
-                  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36' }
-                });
-                const xml = await res.text();
-                const blocks = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
-                for (const block of blocks) {
-                  const title = /<title>([\s\S]*?)<\/title>/.exec(block);
-                  const traffic = /<ht:approx_traffic>([\s\S]*?)<\/ht:approx_traffic>/.exec(block);
-                  const newsUrl = /<ht:news_item_url>([\s\S]*?)<\/ht:news_item_url>/.exec(block);
-                  const t = title ? decode(title[1]).trim() : '';
-                  if (!t) continue;
-                  items.push({
-                    title: t,
-                    url: newsUrl ? decode(newsUrl[1]).trim() : ('https://trends.google.com/trends/explore?q=' + encodeURIComponent(t) + '&geo=' + geo),
-                    hot: traffic ? decode(traffic[1]).trim() : '',
-                    desc: 'Google Trends ' + geo
-                  });
-                  if (items.length >= 20) break;
-                }
-              } catch (e) {
-                console.log('gtrends ' + geo + ' failed:', e.message);
-              }
-              out[geo] = { updated_at: new Date().toISOString(), count: items.length, items };
-              console.log('gtrends ' + geo + ':', items.length);
-            }
-            fs.writeFileSync('data/gtrends.json', JSON.stringify(out, null, 2) + '\n');
-          })();
-          JS
-          node fetch-gtrends.js
-
-      - name: Debug page structures
-        run: |
-          cat > debug.js <<'JS'
-          const { chromium } = require('playwright');
-          (async () => {
-            const browser = await chromium.launch();
-            const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1280, height: 1200 } });
-
-            const probe = async (url) => {
-              try {
-                await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-                await page.waitForTimeout(7000);
-                const info = await page.evaluate(() => {
-                  const q = (s) => document.querySelectorAll(s).length;
-                  const sample = (s) => {
-                    const el = document.querySelector(s);
-                    return el ? (el.innerText || '').replace(/\s+/g, ' ').slice(0, 120) : '';
-                  };
-                  return {
-                    title: document.title,
-                    url: location.href,
-                    bodyLen: document.body ? document.body.innerText.length : 0,
-                    videoTitle: q('a#video-title'),
-                    videoRenderer: q('ytd-video-renderer'),
-                    richItem: q('ytd-rich-item-renderer'),
-                    compact: q('ytd-compact-video-renderer'),
-                    richGrid: q('ytd-rich-grid-renderer'),
-                    trendLi: q('.trend-card__list li'),
-                    trendA: q('.trend-card__list li a'),
-                    trendAny: q('[class*=trend] a'),
-                    sampleVideo: sample('a#video-title'),
-                    sampleTitle: sample('h3'),
-                    sampleTrend: sample('.trend-card__list li'),
-                    bodyHead: (document.body ? document.body.innerText : '').replace(/\s+/g, ' ').slice(0, 300)
-                  };
-                });
-                console.log('PROBE', url, JSON.stringify(info));
-              } catch (e) {
-                console.log('PROBE FAIL', url, e.message);
-              }
-            };
-
-            await probe('https://www.youtube.com/feed/trending?gl=US&hl=en&persist_gl=1');
-            await probe('https://trends24.in/');
-            await browser.close();
-          })();
-          JS
-          node debug.js
-          cat > probe-apis.js <<'JS'
-          const urls = [
-            'https://yewtu.be/api/v1/trending?region=US',
-            'https://invidious.nerdvpn.de/api/v1/trending?region=US',
-            'https://inv.nadeko.net/api/v1/trending?region=US',
-            'https://invidious.f5.si/api/v1/trending?region=US',
-            'https://pipedapi.kavin.rocks/trending?region=US',
-            'https://api.piped.yt/trending?region=US',
-            'https://pipedapi.adminforge.de/trending?region=US',
-            'https://getdaytrends.com/',
-            'https://xcancel.com/',
-            'https://rsshub.app/twitter/trends/worldwide'
-          ];
-          (async () => {
-            for (const u of urls) {
-              try {
-                const c = new AbortController();
-                const t = setTimeout(() => c.abort(), 15000);
-                const r = await fetch(u, { signal: c.signal, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131 safari' } });
-                clearTimeout(t);
-                const text = await r.text();
-                console.log('API', u, r.status, text.length, text.slice(0, 160).replace(/\s+/g, ' '));
-              } catch (e) {
-                console.log('API FAIL', u, e.message);
-              }
-            }
-          })();
-          JS
-          node probe-apis.js
 
       - name: Commit and push
         run: |
