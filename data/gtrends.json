@@ -1,8 +1,38 @@
 {
   "US": {
-    "updated_at": "2026-11-22T13:42:56.329Z",
+    "updated_at": "2026-11-22T13:44:32.223Z",
     "count": 10,
     "items": [
+      {
+        "title": "jennifer garner",
+        "url": "https://www.theaustralian.com.au/arts/news-of-the-week-jennifer-garner-reflects-on-incredible-part-of-ben-affleck-marriage/video/75793ab6de375b238ab608fa0407c979",
+        "hot": "2000+",
+        "desc": "Google Trends US"
+      },
+      {
+        "title": "us lbm coaches poll projections",
+        "url": "https://www.usatoday.com/story/sports/ncaaf/2026/11/22/college-football-rankings-projection-coaches-poll-week-12/92909085007/",
+        "hot": "200+",
+        "desc": "Google Trends US"
+      },
+      {
+        "title": "alec pierce",
+        "url": "https://www.espn.com/nfl/story/_/id/50551004/sources-colts-shutting-alec-pierce-rest-season",
+        "hot": "200+",
+        "desc": "Google Trends US"
+      },
+      {
+        "title": "titans vs cowboys",
+        "url": "https://www.dallascowboys.com/news/gut-feeling-staff-predictions-for-cowboys-titans",
+        "hot": "100+",
+        "desc": "Google Trends US"
+      },
+      {
+        "title": "chicago weather",
+        "url": "https://chicago.suntimes.com/weather/2026/11/21/chicago-reaches-third-warmest-fall-on-record",
+        "hot": "1000+",
+        "desc": "Google Trends US"
+      },
       {
         "title": "truck driver",
         "url": "https://www.abc15.com/news/crime/investigators-seek-truck-driver-after-plywood-critically-injures-i-10-driver",
@@ -28,47 +58,41 @@
         "desc": "Google Trends US"
       },
       {
-        "title": "changing retirement lifestyle baby boomers",
-        "url": "https://www.wsj.com/personal-finance/retirement/baby-boomers-aging-eec29458",
-        "hot": "200+",
-        "desc": "Google Trends US"
-      },
-      {
-        "title": "konyaspor vs beşiktaş",
-        "url": "https://www.fanatik.com.tr/besiktas/live-konyaspor-besiktas-maci-canli-anlatim-kny-bjk-maci-kadrosu-skoru-ve-istatistikleri-2645344",
+        "title": "tajon buchanan",
+        "url": "https://www.espn.com/soccer/report/_/gameId/401861185",
         "hot": "500+",
-        "desc": "Google Trends US"
-      },
-      {
-        "title": "georgia tech couple",
-        "url": "https://www.usatoday.com/story/sports/ncaaf/2026/11/21/georgia-tech-wake-forest-fans-jesse-palmer-bachelor-couple-breakup/92902050007/",
-        "hot": "200+",
-        "desc": "Google Trends US"
-      },
-      {
-        "title": "ravens vs panthers",
-        "url": "https://www.panthers.com/news/5-things-to-watch-as-the-panthers-return-home-to-take-on-the-ravens",
-        "hot": "100+",
-        "desc": "Google Trends US"
-      },
-      {
-        "title": "russian navy vessel fire benghazi",
-        "url": "https://www.navalnews.com/naval-news/2026/11/russian-warship-destroyed-in-huge-explosion-in-libya/",
-        "hot": "1000+",
-        "desc": "Google Trends US"
-      },
-      {
-        "title": "pipeline explosion alabama",
-        "url": "https://www.kbtx.com/video/2026/11/22/explosion-ward-ala/",
-        "hot": "1000+",
         "desc": "Google Trends US"
       }
     ]
   },
   "GB": {
-    "updated_at": "2026-11-22T13:42:56.400Z",
+    "updated_at": "2026-11-22T13:44:32.450Z",
     "count": 10,
     "items": [
+      {
+        "title": "tajon buchanan",
+        "url": "https://www.corsicanadailysun.com/sports/national_sports/spain-la-liga-soccer/image_cc0ab4c4-fb3d-588a-afbf-b40d076b8a6a.html",
+        "hot": "200+",
+        "desc": "Google Trends GB"
+      },
+      {
+        "title": "ajax vs den haag",
+        "url": "https://trends.google.com/trends/explore?q=ajax%20vs%20den%20haag&geo=GB",
+        "hot": "200+",
+        "desc": "Google Trends GB"
+      },
+      {
+        "title": "tani oluwaseyi",
+        "url": "https://www.bbc.co.uk/sport/football/live/cqe87553peegt",
+        "hot": "2000+",
+        "desc": "Google Trends GB"
+      },
+      {
+        "title": "alessio dionisi",
+        "url": "https://www.bbc.co.uk/sport/football/articles/cyvz6r4g1jqo",
+        "hot": "500+",
+        "desc": "Google Trends GB"
+      },
       {
         "title": "nick woltemade",
         "url": "https://sportbild.bild.de/fussball/internationaler-fussball/serie-a-ueberraschende-woltemade-wende-bei-juve-6b01aa3f45d8681e4fca3ec7",
@@ -84,7 +108,7 @@
       {
         "title": "hull vs brighton",
         "url": "https://www.bbc.co.uk/sport/football/live/cky97ll8253wt",
-        "hot": "5000+",
+        "hot": "10000+",
         "desc": "Google Trends GB"
       },
       {
@@ -104,35 +128,11 @@
         "url": "https://www.wsj.com/world/middle-east/the-u-a-e-is-shuttling-oil-past-iran-in-risky-hormuz-operation-9150693e",
         "hot": "1000+",
         "desc": "Google Trends GB"
-      },
-      {
-        "title": "david dunn",
-        "url": "https://www.lancashirebusinessview.co.uk/latest-news-and-features/david-dunn-joins-nybble-as-business-ambassador",
-        "hot": "500+",
-        "desc": "Google Trends GB"
-      },
-      {
-        "title": "konyaspor vs beşiktaş",
-        "url": "https://www.fanatik.com.tr/besiktas/live-konyaspor-besiktas-maci-canli-anlatim-kny-bjk-maci-kadrosu-skoru-ve-istatistikleri-2645344",
-        "hot": "200+",
-        "desc": "Google Trends GB"
-      },
-      {
-        "title": "commonhold",
-        "url": "https://www.bbc.co.uk/news/videos/cm782ee9lp32o",
-        "hot": "200+",
-        "desc": "Google Trends GB"
-      },
-      {
-        "title": "derbyshire police m1 safety warning",
-        "url": "https://www.bbc.co.uk/news/articles/cwj3kxr4eyk0o",
-        "hot": "500+",
-        "desc": "Google Trends GB"
       }
     ]
   },
   "DE": {
-    "updated_at": "2026-11-22T13:42:56.574Z",
+    "updated_at": "2026-11-22T13:44:32.554Z",
     "count": 10,
     "items": [
       {
@@ -179,7 +179,7 @@
       },
       {
         "title": "friedrich christian flick",
-        "url": "https://www.sueddeutsche.de/kultur/mick-flick-kunstsammler-gestorben-nachruf-li.3584124",
+        "url": "https://www.bild.de/unterhaltung/stars-und-leute/milliardaer-mick-flick-die-kunst-frauen-zu-lieben-6b02c4733cd434a4d6d0ccf7",
         "hot": "20000+",
         "desc": "Google Trends DE"
       },
@@ -198,7 +198,7 @@
     ]
   },
   "FR": {
-    "updated_at": "2026-11-22T13:42:56.703Z",
+    "updated_at": "2026-11-22T13:44:32.784Z",
     "count": 10,
     "items": [
       {
@@ -264,13 +264,19 @@
     ]
   },
   "IN": {
-    "updated_at": "2026-11-22T13:42:56.772Z",
+    "updated_at": "2026-11-22T13:44:33.003Z",
     "count": 10,
     "items": [
       {
+        "title": "ajax vs den haag",
+        "url": "https://www.bbc.com/sport/football/live/cmdx1ee0pld7t",
+        "hot": "200+",
+        "desc": "Google Trends IN"
+      },
+      {
         "title": "hull vs brighton",
         "url": "https://www.espn.in/football/story/_/id/50560972/hull-city-brighton-hove-albion-live-premier-league-updates",
-        "hot": "1000+",
+        "hot": "2000+",
         "desc": "Google Trends IN"
       },
       {
@@ -286,21 +292,15 @@
         "desc": "Google Trends IN"
       },
       {
-        "title": "villarreal cf",
-        "url": "https://onefootball.com/es/noticias/el-villarreal-se-pone-0-2-ante-el-barca-en-seis-minutos-43818472",
-        "hot": "1000+",
+        "title": "tajon buchanan",
+        "url": "https://www.theguardian.com/football/2026/nov/17/jurgen-klopp-germany-project-football-daily-newsletter",
+        "hot": "500+",
         "desc": "Google Trends IN"
       },
       {
         "title": "बेटी",
         "url": "https://www.aajtak.in/india/delhi/story/pandav-nagar-baby-kidnapping-child-recovered-aligarh-three-arrested-lcla-strc-2702853-2026-11-22",
         "hot": "1000+",
-        "desc": "Google Trends IN"
-      },
-      {
-        "title": "tajon buchanan",
-        "url": "https://www.corsicanadailysun.com/sports/national_sports/spain-la-liga-soccer/image_fd0aeeaf-a4b4-5149-b7f5-7b16ddcded08.html",
-        "hot": "500+",
         "desc": "Google Trends IN"
       },
       {
@@ -324,13 +324,13 @@
       {
         "title": "fc barcelona vs villarreal cf lineups",
         "url": "https://www.bbc.com/sport/football/live/cqe87553peegt",
-        "hot": "5000+",
+        "hot": "10000+",
         "desc": "Google Trends IN"
       }
     ]
   },
   "BR": {
-    "updated_at": "2026-11-22T13:42:56.842Z",
+    "updated_at": "2026-11-22T13:44:33.209Z",
     "count": 10,
     "items": [
       {
@@ -396,7 +396,7 @@
     ]
   },
   "JP": {
-    "updated_at": "2026-11-22T13:42:56.910Z",
+    "updated_at": "2026-11-22T13:44:33.442Z",
     "count": 10,
     "items": [
       {
@@ -462,7 +462,7 @@
     ]
   },
   "KR": {
-    "updated_at": "2026-11-22T13:42:56.965Z",
+    "updated_at": "2026-11-22T13:44:33.644Z",
     "count": 10,
     "items": [
       {
@@ -486,7 +486,7 @@
       {
         "title": "바르셀로나 대 비야레알",
         "url": "https://ko.laodong.vn/bong-da-quoc-te/nhan-dinh-bong-da-barcelona-vs-villarreal-tai-la-liga-1804488.ldo",
-        "hot": "5000+",
+        "hot": "10000+",
         "desc": "Google Trends KR"
       },
       {
@@ -508,14 +508,14 @@
         "desc": "Google Trends KR"
       },
       {
-        "title": "thời tiết ngày mai",
-        "url": "https://baolaocai.vn/du-bao-thoi-tiet-dem-22-va-ngay-2311-post915177.html",
+        "title": "погода завтра",
+        "url": "https://trends.google.com/trends/explore?q=%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0%20%D0%B7%D0%B0%D0%B2%D1%82%D1%80%D0%B0&geo=KR",
         "hot": "2000+",
         "desc": "Google Trends KR"
       },
       {
-        "title": "погода завтра",
-        "url": "https://trends.google.com/trends/explore?q=%D0%BF%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0%20%D0%B7%D0%B0%D0%B2%D1%82%D1%80%D0%B0&geo=KR",
+        "title": "thời tiết ngày mai",
+        "url": "https://baolaocai.vn/du-bao-thoi-tiet-dem-22-va-ngay-2311-post915177.html",
         "hot": "2000+",
         "desc": "Google Trends KR"
       },
