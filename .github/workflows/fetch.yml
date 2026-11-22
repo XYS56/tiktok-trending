@@ -14,41 +14,60 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch TikTok discover page
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright
         run: |
-          mkdir -p data
-          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-          for url in "https://www.tiktok.com/discover" "https://www.tiktok.com/discover?lang=en"; do
-            code=$(curl -sSL --max-time 60 -A "$UA" -H "Accept-Language: en-US,en;q=0.9" -o data/discover.html -w '%{http_code}' "$url" || true)
-            echo "GET $url -> $code $(wc -c < data/discover.html) bytes"
-            if [ "$code" = "200" ] && [ -s data/discover.html ]; then break; fi
-          done
-          python3 - <<'PY'
-          import json, re, datetime
-          html = open('data/discover.html', encoding='utf-8', errors='ignore').read()
-          tags = []
-          seen = set()
-          for m in re.finditer(r'href="/tag/([A-Za-z0-9_%\.\-]+)"[^>]*>', html):
-              name = m.group(1).strip()
-              if not name or name in seen:
-                  continue
-              seen.add(name)
-              tags.append({'title': name, 'hot': 0})
-          if not tags:
-              for m in re.finditer(r'#([A-Za-z0-9_]{3,30})', html):
-                  name = m.group(1)
-                  if name in seen:
-                      continue
-                  seen.add(name)
-                  tags.append({'title': name, 'hot': 0})
-          json.dump({
-              'updated_at': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
-              'source': 'www.tiktok.com/discover',
-              'items': tags[:40],
-          }, open('data/tiktok.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-          print('items', len(tags[:40]))
-          PY
-          rm -f data/discover.html
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.49.1 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+
+      - name: Fetch trending hashtags
+        run: |
+          cat > fetch.js <<'JS'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1280, height: 900 } });
+            const out = [];
+            const seen = new Set();
+            const collect = async (url) => {
+              try {
+                await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                await page.waitForTimeout(6000);
+                const rows = await page.$$eval('a[href^="/tag/"]', as => as.map(a => ({
+                  href: a.getAttribute('href'),
+                  text: (a.innerText || '').replace(/\s+/g, ' ').trim(),
+                })));
+                for (const r of rows) {
+                  const m = /^\/tag\/([^?\/]+)/.exec(r.href || '');
+                  if (!m) continue;
+                  const name = decodeURIComponent(m[1]).replace(/^#/, '');
+                  if (!name || seen.has(name)) continue;
+                  seen.add(name);
+                  out.push({ title: name, hot: 0 });
+                }
+              } catch (e) {
+                console.log('fail', url, e.message);
+              }
+            };
+            await collect('https://www.tiktok.com/discover');
+            if (out.length < 12) await collect('https://www.tiktok.com/');
+            await browser.close();
+            fs.mkdirSync('data', { recursive: true });
+            fs.writeFileSync('data/tiktok.json', JSON.stringify({
+              updated_at: new Date().toISOString(),
+              source: 'www.tiktok.com rendered',
+              items: out.slice(0, 40),
+            }, null, 1), 'utf8');
+            console.log('items', out.length);
+          })();
+          JS
+          node fetch.js
 
       - name: Commit
         run: |
